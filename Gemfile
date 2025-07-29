@@ -60,8 +60,8 @@ gem "faraday"
 gem "faraday-retry"
 gem "faraday-multipart"
 
-# Yodlee Integration
-gem "yodlee", "~> 1.0" # Placeholder SDK until official gem is selected
+# Yodlee Integration - manually handled via HTTP requests for now
+# gem "yodlee-icious", "~> 0.0.7" # Ruby wrapper for Yodlee REST API - conflicts with faraday versions
 gem "inline_svg"
 gem "octokit"
 gem "pagy"

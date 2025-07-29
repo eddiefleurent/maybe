@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_24_115507) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_29_195300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -824,6 +824,38 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_24_115507) do
     t.jsonb "locked_attributes", default: {}
   end
 
+  create_table "yodlee_accounts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "yodlee_id", null: false
+    t.uuid "yodlee_item_id", null: false
+    t.uuid "account_id"
+    t.jsonb "raw_payload"
+    t.datetime "last_synced_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_yodlee_accounts_on_account_id"
+    t.index ["yodlee_id", "yodlee_item_id"], name: "index_yodlee_accounts_on_yodlee_id_and_yodlee_item_id", unique: true
+    t.index ["yodlee_item_id"], name: "index_yodlee_accounts_on_yodlee_item_id"
+  end
+
+  create_table "yodlee_items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name", null: false
+    t.text "user_session", null: false
+    t.string "yodlee_id"
+    t.string "institution_id"
+    t.string "institution_url"
+    t.string "institution_color"
+    t.text "available_products", default: [], array: true
+    t.jsonb "raw_payload"
+    t.jsonb "raw_institution_payload"
+    t.string "status", default: "good", null: false
+    t.uuid "family_id", null: false
+    t.boolean "scheduled_for_deletion", default: false, null: false
+    t.datetime "last_synced_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["family_id"], name: "index_yodlee_items_on_family_id"
+  end
+
   add_foreign_key "accounts", "families"
   add_foreign_key "accounts", "imports"
   add_foreign_key "accounts", "plaid_accounts"
@@ -876,4 +908,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_24_115507) do
   add_foreign_key "transfers", "transactions", column: "outflow_transaction_id", on_delete: :cascade
   add_foreign_key "users", "chats", column: "last_viewed_chat_id"
   add_foreign_key "users", "families"
+  add_foreign_key "yodlee_accounts", "accounts"
+  add_foreign_key "yodlee_accounts", "yodlee_items"
+  add_foreign_key "yodlee_items", "families"
 end
