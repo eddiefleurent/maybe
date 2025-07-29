@@ -1,5 +1,6 @@
 class Family < ApplicationRecord
-  include PlaidConnectable, Syncable, AutoTransferMatchable, Subscribeable
+  # Add YodleeConnectable to enable linking Yodlee items for this family.
+  include PlaidConnectable, YodleeConnectable, Syncable, AutoTransferMatchable, Subscribeable
 
   DATE_FORMATS = [
     [ "MM-DD-YYYY", "%m-%d-%Y" ],

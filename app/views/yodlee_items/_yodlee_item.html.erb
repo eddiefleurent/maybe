@@ -1,0 +1,118 @@
+<div class="bg-container rounded-lg overflow-hidden">
+  <div class="p-4 flex justify-between items-center border-b border-divider">
+    <div class="flex items-center gap-3">
+      <% if yodlee_item.logo.attached? %>
+        <%= image_tag yodlee_item.logo.variant(resize_to_limit: [32, 32]), class: "w-8 h-8 rounded-md" %>
+      <% else %>
+        <div class="w-8 h-8 bg-muted rounded-md flex items-center justify-center">
+          <%= icon("building", size: "sm") %>
+        </div>
+      <% end %>
+      
+      <div>
+        <h3 class="font-medium"><%= yodlee_item.name %></h3>
+        <div class="flex items-center gap-1 text-xs">
+          <% if yodlee_item.status == "good" %>
+            <span class="text-success flex items-center gap-1">
+              <%= icon("check-circle", size: "xs") %>
+              <%= t("yodlee_items.status.good") %>
+            </span>
+          <% else %>
+            <span class="text-warning flex items-center gap-1">
+              <%= icon("alert-triangle", size: "xs") %>
+              <%= t("yodlee_items.status.requires_update") %>
+              <%= render DS::Link.new(
+                text: t("yodlee_items.status.update"),
+                href: edit_yodlee_item_path(yodlee_item),
+                size: "xs"
+              ) %>
+            </span>
+          <% end %>
+          
+          <% if yodlee_item.last_synced_at.present? %>
+            <span class="text-secondary">•</span>
+            <span class="text-secondary">
+              <%= t("yodlee_items.last_synced", time: time_ago_in_words(yodlee_item.last_synced_at)) %>
+            </span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    
+    <div class="flex items-center gap-2">
+      <%= render DS::Button.new(
+        icon: "refresh-cw",
+        variant: :ghost,
+        size: :sm,
+        title: t("yodlee_items.sync"),
+        disabled: yodlee_item.syncing?,
+        method: :post,
+        href: sync_yodlee_item_path(yodlee_item)
+      ) %>
+      
+      <%= render DS::Dropdown.new(align: :right) do |d| %>
+        <% d.with_button do %>
+          <%= icon("more-horizontal") %>
+        <% end %>
+        
+        <% d.with_items do %>
+          <%= render DS::Dropdown::Link.new(
+            text: t("yodlee_items.update_connection"),
+            icon: "refresh-cw",
+            href: edit_yodlee_item_path(yodlee_item)
+          ) %>
+          
+          <%= render DS::Dropdown::Link.new(
+            text: t("yodlee_items.remove_connection"),
+            icon: "trash-2",
+            href: yodlee_item_path(yodlee_item),
+            method: :delete,
+            confirm: t("yodlee_items.confirm_remove"),
+            variant: :danger
+          ) %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+  
+  <% if yodlee_item.accounts.any? %>
+    <div class="p-4">
+      <div class="space-y-2">
+        <% yodlee_item.accounts.each do |account| %>
+          <div class="flex items-center justify-between py-2">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-muted rounded-md flex items-center justify-center">
+                <%= icon(account.icon, size: "sm") %>
+              </div>
+              
+              <div>
+                <div class="font-medium">
+                  <%= render DS::Link.new(
+                    text: account.name,
+                    href: account_path(account)
+                  ) %>
+                </div>
+                <div class="text-xs text-secondary">
+                  <%= account.accountable_type %> • <%= account.mask.present? ? "••#{account.mask}" : "" %>
+                </div>
+              </div>
+            </div>
+            
+            <div class="text-right">
+              <div class="font-medium">
+                <%= format_money(account.balance, account.currency) %>
+              </div>
+              <div class="text-xs text-secondary">
+                <%= account.currency %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <div class="p-4 text-center text-secondary">
+      <p><%= t("yodlee_items.no_accounts") %></p>
+    </div>
+  <% end %>
+</div>

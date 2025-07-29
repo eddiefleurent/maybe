@@ -59,6 +59,9 @@ gem "rack-attack", "~> 6.6"
 gem "faraday"
 gem "faraday-retry"
 gem "faraday-multipart"
+
+# Yodlee Integration
+gem "yodlee", "~> 1.0" # Placeholder SDK until official gem is selected
 gem "inline_svg"
 gem "octokit"
 gem "pagy"

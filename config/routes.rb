@@ -251,10 +251,19 @@ Rails.application.routes.draw do
     end
   end
 
+  # Yodlee account connections
+  post "yodlee/token", to: "yodlee_tokens#create"
+  resources :yodlee_items, only: %i[new edit create destroy] do
+    member do
+      post :sync
+    end
+  end
+
   namespace :webhooks do
     post "plaid"
     post "plaid_eu"
     post "stripe"
+    post "yodlee"
   end
 
   get "redis-configuration-error", to: "pages#redis_configuration_error"

@@ -1,0 +1,30 @@
+en:
+  yodlee_items:
+    new:
+      title: "Connect Financial Institution"
+      description: "Connect your bank accounts, credit cards, loans, and investments using Yodlee."
+      instructions_title: "Connect Your Accounts"
+      instructions_description: "Click the button below to securely connect your financial accounts. You'll be prompted to select your institution and enter your credentials."
+      connect_button: "Connect Institution"
+      privacy_notice: "Your credentials are securely transmitted to Yodlee and are never stored by Maybe Finance."
+    edit:
+      title: "Update Connection"
+      description: "Update your connection credentials or reconnect to your financial institution."
+      error: "Unable to update this connection. Please try again later."
+    create:
+      success: "Financial institution successfully connected. Your accounts will appear shortly."
+      error: "There was a problem connecting to your financial institution. Please try again."
+    destroy:
+      success: "Financial institution connection has been removed."
+    sync:
+      success: "Sync started. Your accounts will be updated shortly."
+    status:
+      good: "Connected"
+      requires_update: "Action required"
+      update: "Reconnect"
+    last_synced: "Last synced %{time} ago"
+    sync_action: "Sync"
+    update_connection: "Update connection"
+    remove_connection: "Remove connection"
+    confirm_remove: "Are you sure you want to remove this financial institution?"
+    no_accounts: "No accounts have been imported yet."

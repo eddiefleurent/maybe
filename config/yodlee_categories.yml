@@ -1,0 +1,103 @@
+# Yodlee to Maybe Finance Category Mapping
+# Format: yodlee_category_id: maybe_category_slug
+
+# Income Categories
+1: income
+2: salary
+3: investment
+9: other_income
+10: bonus
+11: interest_income
+12: dividends
+15: tax_refund
+20: rental_income
+
+# Transfer Categories
+50: transfer
+51: credit_card_payment
+52: loan_payment
+55: account_transfer
+58: deposit
+
+# Shopping & Retail
+101: shopping
+102: groceries
+105: clothing
+110: electronics
+115: home_improvement
+120: gifts
+
+# Food & Dining
+201: restaurants
+202: coffee_shops
+205: fast_food
+210: alcohol
+215: food_delivery
+
+# Bills & Utilities
+301: utilities
+302: internet
+303: mobile_phone
+305: electricity
+306: water
+307: gas
+310: television
+315: streaming_services
+
+# Transportation
+401: transportation
+402: gas
+405: public_transportation
+410: parking
+415: tolls
+420: car_service
+425: air_travel
+
+# Housing
+501: housing
+502: mortgage
+505: rent
+510: property_tax
+515: hoa_fees
+520: home_insurance
+
+# Financial
+601: financial
+602: bank_fee
+605: atm_fee
+610: credit_card_fee
+615: loan_interest
+620: investment_fee
+625: late_fee
+630: overdraft_fee
+
+# Health & Fitness
+701: healthcare
+702: health_insurance
+705: doctor
+710: pharmacy
+715: gym
+720: fitness
+
+# Entertainment
+801: entertainment
+802: movies
+805: music
+810: games
+815: sports
+820: concerts
+
+# Other
+901: other
+905: education
+910: charity
+915: taxes
+920: legal
+925: business_expense
+930: personal_care
+935: pets
+940: subscriptions
+945: cash_withdrawal
+
+# Uncategorized
+999: uncategorized

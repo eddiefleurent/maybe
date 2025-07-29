@@ -5,6 +5,7 @@ class AccountsController < ApplicationController
   def index
     @manual_accounts = family.accounts.manual.alphabetically
     @plaid_items = family.plaid_items.ordered
+    @yodlee_items = family.yodlee_items.ordered
 
     render layout: "settings"
   end

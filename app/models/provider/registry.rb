@@ -56,6 +56,29 @@ class Provider::Registry
         Provider::Plaid.new(config, region: :eu)
       end
 
+      # Yodlee provider (single global region for now)
+      def yodlee
+        client_id       = ENV["YODLEE_CLIENT_ID"]
+        secret          = ENV["YODLEE_SECRET"]
+        base_url        = ENV["YODLEE_BASE"]
+        fastlink_url    = ENV["YODLEE_FASTLINK_URL"]
+        cobrand_name    = ENV["YODLEE_COBRAND_NAME"]
+
+        return nil unless client_id.present? &&
+                        secret.present? &&
+                        base_url.present? &&
+                        fastlink_url.present? &&
+                        cobrand_name.present?
+
+        Provider::Yodlee.new(
+          client_id: client_id,
+          secret: secret,
+          base_url: base_url,
+          fastlink_url: fastlink_url,
+          cobrand_name: cobrand_name
+        )
+      end
+
       def github
         Provider::Github.new
       end
@@ -98,7 +121,7 @@ class Provider::Registry
       when :llm
         %i[openai]
       else
-        %i[synth plaid_us plaid_eu github openai]
+        %i[synth plaid_us plaid_eu yodlee github openai]
       end
     end
 end

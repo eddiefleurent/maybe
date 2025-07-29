@@ -1,0 +1,127 @@
+<% content_for :title, t(".title") %>
+
+<div class="mx-auto max-w-2xl">
+  <div class="mb-6">
+    <%= render DS::Breadcrumb.new do |b| %>
+      <% b.with_link(href: accounts_path) do %>
+        <%= t("accounts.index.title") %>
+      <% end %>
+      <% b.with_item do %>
+        <%= t(".title") %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="mb-6">
+    <h1 class="text-2xl font-semibold"><%= t(".title") %></h1>
+    <p class="text-secondary"><%= t(".description") %></p>
+  </div>
+
+  <div class="bg-container rounded-lg p-6 mb-6">
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-2">
+        <h2 class="text-lg font-medium"><%= t(".instructions_title") %></h2>
+        <p><%= t(".instructions_description") %></p>
+      </div>
+
+      <div class="flex justify-center mt-4">
+        <%= render DS::Button.new(id: "launch-yodlee-fastlink", type: "button", variant: :primary, size: :lg) do %>
+          <%= t(".connect_button") %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center text-sm text-secondary mt-4">
+    <p><%= t(".privacy_notice") %></p>
+  </div>
+</div>
+
+<!-- Load the FastLink script -->
+<script src="<%= @token_response.fastlink_url %>/v4/initialize.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const launchButton = document.getElementById('launch-yodlee-fastlink');
+    
+    launchButton.addEventListener('click', function() {
+      // Show loading state
+      launchButton.setAttribute('disabled', 'disabled');
+      launchButton.innerHTML = '<span class="animate-pulse">Loading...</span>';
+      
+      // Initialize FastLink
+      window.fastlink.open({
+        fastLinkURL: '<%= @token_response.fastlink_url %>',
+        accessToken: {
+          tokenType: 'AccessToken',
+          token: {
+            value: '<%= @token_response.user_token %>'
+          }
+        },
+        params: {
+          configName: 'Aggregation',
+          flow: 'add',
+          forceExternalApp: false
+        },
+        onSuccess: function(data) {
+          console.log('Yodlee FastLink success:', data);
+          
+          // Create a form to submit the data
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = '<%= yodlee_items_path %>';
+          form.style.display = 'none';
+          
+          // Add authenticity token
+          const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+          const csrfInput = document.createElement('input');
+          csrfInput.type = 'hidden';
+          csrfInput.name = 'authenticity_token';
+          csrfInput.value = csrfToken;
+          form.appendChild(csrfInput);
+          
+          // Add user session
+          const userSessionInput = document.createElement('input');
+          userSessionInput.type = 'hidden';
+          userSessionInput.name = 'yodlee_item[user_session]';
+          userSessionInput.value = '<%= @token_response.user_token %>';
+          form.appendChild(userSessionInput);
+          
+          // Add metadata
+          const metadataInput = document.createElement('input');
+          metadataInput.type = 'hidden';
+          metadataInput.name = 'yodlee_item[metadata]';
+          metadataInput.value = JSON.stringify(data);
+          form.appendChild(metadataInput);
+          
+          // Submit the form
+          document.body.appendChild(form);
+          form.submit();
+        },
+        onError: function(error) {
+          console.error('Yodlee FastLink error:', error);
+          
+          // Reset button state
+          launchButton.removeAttribute('disabled');
+          launchButton.innerHTML = '<%= t(".connect_button") %>';
+          
+          // Show error message
+          const errorMessage = document.createElement('div');
+          errorMessage.className = 'text-error text-center mt-4';
+          errorMessage.textContent = 'Error connecting to your financial institution. Please try again.';
+          launchButton.parentNode.appendChild(errorMessage);
+        },
+        onClose: function() {
+          console.log('Yodlee FastLink closed');
+          
+          // Reset button state
+          launchButton.removeAttribute('disabled');
+          launchButton.innerHTML = '<%= t(".connect_button") %>';
+        },
+        onEvent: function(event) {
+          console.log('Yodlee FastLink event:', event);
+        }
+      });
+    });
+  });
+</script>
