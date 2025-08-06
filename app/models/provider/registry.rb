@@ -56,27 +56,13 @@ class Provider::Registry
         Provider::Plaid.new(config, region: :eu)
       end
 
-      # Yodlee provider (single global region for now)
+      # Yodlee provider (API v1.1)
       def yodlee
-        client_id       = ENV["YODLEE_CLIENT_ID"]
-        secret          = ENV["YODLEE_SECRET"]
-        base_url        = ENV["YODLEE_BASE"]
-        fastlink_url    = ENV["YODLEE_FASTLINK_URL"]
-        cobrand_name    = ENV["YODLEE_COBRAND_NAME"]
+        config = Rails.application.config.yodlee
 
-        return nil unless client_id.present? &&
-                        secret.present? &&
-                        base_url.present? &&
-                        fastlink_url.present? &&
-                        cobrand_name.present?
+        return nil unless config.present?
 
-        Provider::Yodlee.new(
-          client_id: client_id,
-          secret: secret,
-          base_url: base_url,
-          fastlink_url: fastlink_url,
-          cobrand_name: cobrand_name
-        )
+        Provider::Yodlee.new(config)
       end
 
       def github

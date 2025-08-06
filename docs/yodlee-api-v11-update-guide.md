@@ -1,6 +1,6 @@
 # Updating Maybe Finance Yodlee Integration to API v1.1
 
-_Last revised: {{DATE}}_
+_Last revised: January 16, 2025_
 
 ---
 

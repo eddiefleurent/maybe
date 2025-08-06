@@ -8,9 +8,8 @@ Rails.application.configure do
     config.yodlee = {
       client_id: ENV["YODLEE_CLIENT_ID"],
       secret: ENV["YODLEE_SECRET"],
-      base_url: ENV["YODLEE_BASE"] || "https://development.api.envestnet.com/ysl",
-      fastlink_url: ENV["YODLEE_FASTLINK_URL"] || "https://development.fastlink.envestnet.com",
-      cobrand_name: ENV["YODLEE_COBRAND_NAME"]
+      base_url: ENV["YODLEE_BASE"] || "https://sandbox.api.yodlee.com/ysl",
+      fastlink_url: ENV["YODLEE_FASTLINK_URL"] || "https://fl4.sandbox.yodlee.com/authenticate/restserver/fastlink"
     }
 
     # Enable Yodlee integration if explicitly set
