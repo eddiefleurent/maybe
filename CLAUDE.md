@@ -18,16 +18,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Linting & Formatting
 - `bin/rubocop` - Run Ruby linter
-- `npm run lint` - Check JavaScript/TypeScript code
+- `bin/rubocop -f github -a` - Ruby linting with auto-correct (use before PRs)
+- `bundle exec erb_lint ./app/**/*.erb -a` - ERB linting with auto-correct
+- `npm run lint` - Check JavaScript/TypeScript code (uses Biome)
 - `npm run lint:fix` - Fix JavaScript/TypeScript issues
 - `npm run format` - Format JavaScript/TypeScript code
-- `bin/brakeman` - Run security analysis
+- `bin/brakeman --no-pager` - Run security analysis
 
 ### Database
 - `bin/rails db:prepare` - Create and migrate database
 - `bin/rails db:migrate` - Run pending migrations
 - `bin/rails db:rollback` - Rollback last migration
 - `bin/rails db:seed` - Load seed data
+- `rake demo_data:default` - Load demo data for development
 
 ### Setup
 - `bin/setup` - Initial project setup (installs dependencies, prepares database)
@@ -54,6 +57,7 @@ Only proceed with pull request creation if ALL checks pass.
 ### Authentication Context
 - Use `Current.user` for the current user. Do NOT use `current_user`.
 - Use `Current.family` for the current family. Do NOT use `current_family`.
+- Access pattern: `Current` is an ActiveSupport::CurrentAttributes class
 
 ### Development Guidelines
 - Prior to generating any code, carefully read the project conventions and guidelines
@@ -73,9 +77,10 @@ The Maybe app runs in two distinct modes:
 ### Core Domain Model
 The application is built around financial data management with these key relationships:
 - **User** → has many **Accounts** → has many **Transactions**
-- **Account** types: checking, savings, credit cards, investments, crypto, loans, properties
+- **Account** types: checking, savings, credit cards, investments, crypto, loans, properties, vehicles
 - **Transaction** → belongs to **Category**, can have **Tags** and **Rules**
 - **Investment accounts** → have **Holdings** → track **Securities** via **Trades**
+- **Family** → groups Users for shared financial management
 
 ### API Architecture
 The application provides both internal and external APIs:
@@ -85,26 +90,33 @@ The application provides both internal and external APIs:
 - Rate limiting via Rack Attack with configurable limits per API key
 
 ### Sync & Import System
-Two primary data ingestion methods:
+Three primary data ingestion methods:
 1. **Plaid Integration**: Real-time bank account syncing
    - `PlaidItem` manages connections
-   - `Sync` tracks sync operations
+   - `PlaidAccount` links to internal accounts
    - Background jobs handle data updates
-2. **CSV Import**: Manual data import with mapping
-   - `Import` manages import sessions
+2. **Yodlee Integration**: Alternative bank data provider (API v1.1)
+   - `YodleeItem` manages connections with provider concern
+   - `YodleeAccount` links to internal accounts
+   - FastLink for secure OAuth connections
+3. **CSV Import**: Manual data import with mapping
+   - `Import` manages import sessions with AASM state machine
    - Supports transaction and balance imports
    - Custom field mapping with transformation rules
 
 ### Background Processing
 Sidekiq handles asynchronous tasks:
-- Account syncing (`SyncAccountsJob`)
-- Import processing (`ImportDataJob`)
-- AI chat responses (`CreateChatResponseJob`)
+- Account syncing (`SyncJob`)
+- Import processing (`ImportJob`)
+- AI chat responses (`AssistantResponseJob`)
+- Yodlee data import (`ImportYodleeDataJob`)
 - Scheduled maintenance via sidekiq-cron
 
 ### Frontend Architecture
 - **Hotwire Stack**: Turbo + Stimulus for reactive UI without heavy JavaScript
 - **ViewComponents**: Reusable UI components in `app/components/`
+  - Design system components in `app/components/DS/`
+  - UI components in `app/components/UI/`
 - **Stimulus Controllers**: Handle interactivity, organized alongside components
 - **Charts**: D3.js for financial visualizations (time series, donut, sankey)
 - **Styling**: Tailwind CSS v4.x with custom design system
@@ -126,12 +138,14 @@ Sidekiq handles asynchronous tasks:
   - API keys with JWT tokens for direct API access
 - Scoped permissions system for API access
 - Strong parameters and CSRF protection throughout
+- MFA support with ROTP/RQRCODE
 
 ### Testing Philosophy
 - Comprehensive test coverage using Rails' built-in Minitest
 - Fixtures for test data (avoid FactoryBot)
 - Keep fixtures minimal (2-3 per model for base cases)
 - VCR for external API testing
+- Mocha for mocking/stubbing
 - System tests for critical user flows (use sparingly)
 - Test helpers in `test/support/` for common scenarios
 - Only test critical code paths that significantly increase confidence
@@ -147,7 +161,7 @@ Sidekiq handles asynchronous tasks:
 ### Development Workflow
 - Feature branches merged to `main`
 - Docker support for consistent environments
-- Environment variables via `.env` files
+- Environment variables via `.env` files (`.env.local.example` as template)
 - Lookbook for component development (`/lookbook`)
 - Letter Opener for email preview in development
 
@@ -214,6 +228,7 @@ Sidekiq handles asynchronous tasks:
 - Prefer components over partials when available
 - Keep domain logic OUT of view templates
 - Logic belongs in component files, not template files
+- Components inherit from `ApplicationComponent` or `DesignSystemComponent`
 
 ### Stimulus Controller Guidelines
 
@@ -271,3 +286,8 @@ end
 - Use `mocha` gem
 - Prefer `OpenStruct` for mock instances
 - Only mock what's necessary
+
+### VCR Usage
+- External API calls are recorded with VCR
+- Cassettes stored in `test/vcr_cassettes/`
+- Sensitive data filtered in `test/test_helper.rb`
