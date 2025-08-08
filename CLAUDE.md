@@ -35,6 +35,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Setup
 - `bin/setup` - Initial project setup (installs dependencies, prepares database)
 
+### Development Environment Preference
+- **DO NOT use devcontainers** for development
+- Run the Rails app natively on the host machine
+- Use Docker only for PostgreSQL and Redis services
+- Example docker-compose setup for services:
+  ```yaml
+  services:
+    postgres:
+      image: postgres:latest
+      environment:
+        POSTGRES_PASSWORD: password
+      ports:
+        - "5432:5432"
+    redis:
+      image: redis:latest
+      ports:
+        - "6379:6379"
+  ```
+
 ## Pre-Pull Request CI Workflow
 
 ALWAYS run these commands before opening a pull request:
