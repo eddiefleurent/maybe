@@ -20,9 +20,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `bin/rubocop` - Run Ruby linter
 - `bin/rubocop -f github -a` - Ruby linting with auto-correct (use before PRs)
 - `bundle exec erb_lint ./app/**/*.erb -a` - ERB linting with auto-correct
-- `npm run lint` - Check JavaScript/TypeScript code (uses Biome)
-- `npm run lint:fix` - Fix JavaScript/TypeScript issues
-- `npm run format` - Format JavaScript/TypeScript code
+- `pnpm run lint` - Check JavaScript/TypeScript code (uses Biome)
+- `pnpm run lint:fix` - Fix JavaScript/TypeScript issues
+- `pnpm run format` - Format JavaScript/TypeScript code
 - `bin/brakeman --no-pager` - Run security analysis
 
 ### Database
@@ -39,6 +39,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **DO NOT use devcontainers** for development
 - Run the Rails app natively on the host machine
 - Use Docker only for PostgreSQL and Redis services
+- **Use pnpm** as the package manager (not npm or yarn)
 - Example docker-compose setup for services:
   ```yaml
   services:
