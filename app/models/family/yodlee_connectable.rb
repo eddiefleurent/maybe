@@ -22,23 +22,29 @@ module Family::YodleeConnectable
   end
 
   def get_yodlee_token(webhooks_url:, redirect_url:)
+    Rails.logger.info("Getting Yodlee token for family #{id}")
+    Rails.logger.info("Can connect Yodlee? #{can_connect_yodlee?}")
+    
     return nil unless can_connect_yodlee?
 
     # First, we need to create a user in Yodlee if one doesn't exist
     # This is typically done after the user authenticates with Maybe
     # but before they see the FastLink widget
     user_session = find_or_create_yodlee_user
+    Rails.logger.info("User session obtained: #{user_session.present? ? user_session[0..20] + '...' : 'nil'}")
 
     # If we couldn't create a user, return nil
     return nil unless user_session
 
     # Get tokens for FastLink initialization
     token_response = yodlee_provider.get_fastlink_token(user_session)
+    Rails.logger.info("Token response obtained: #{token_response.inspect}")
     
     # Return the token response which includes cobrand_token, user_token, and fastlink_url
     token_response
   rescue StandardError => e
     Rails.logger.error("Failed to get Yodlee token: #{e.message}")
+    Rails.logger.error("Backtrace: #{e.backtrace.first(5).join("\n")}")
     Sentry.capture_exception(e) if defined?(Sentry)
     nil
   end

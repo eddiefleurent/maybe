@@ -8,9 +8,13 @@ class YodleeItemsController < ApplicationController
     )
 
     unless @token_response
-      redirect_to accounts_path, alert: t(".error")
+      Rails.logger.error("Failed to get Yodlee token for family #{Current.family.id}")
+      redirect_to accounts_path, alert: "Unable to connect to Yodlee. Please check your configuration."
       return
     end
+    
+    Rails.logger.info("Successfully got Yodlee token: #{@token_response.user_token ? @token_response.user_token[0..20] + '...' : 'NO TOKEN'}")
+    Rails.logger.info("FastLink URL: #{@token_response.fastlink_url}")
   end
 
   def edit

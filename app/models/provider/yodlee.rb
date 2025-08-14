@@ -63,48 +63,37 @@ class Provider::Yodlee
   end
 
   def create_user(user)
-    login_name = "maybe_user_#{user.id}"
+    # In sandbox mode, we use pre-registered test users
+    # The sandbox doesn't support dynamic user registration (Y820 error)
+    # We'll use the admin login name which is a pre-registered test user
     
-    # Try to get user token directly first
+    test_user_login = ENV["ADMIN_LOGIN_NAME"] || "sbMem6nt8db39480c61"
+    
+    Rails.logger.info("Using sandbox test user: #{test_user_login}")
+    
     begin
-      user_token = generate_access_token(login_name: login_name)
-      return user_token if user_token
+      user_token = generate_access_token(login_name: test_user_login)
+      Rails.logger.info("Successfully got token for sandbox user: #{test_user_login}")
+      return user_token
     rescue => e
-      # If user doesn't exist (Y305 error), we need to register first
-      Rails.logger.info("User not registered, attempting registration: #{e.message}")
-    end
-
-    # Register the user first with client token
-    client_token_val = client_token
-    return nil unless client_token_val
-
-    # Register user with direct HTTP
-    uri = URI("#{@base_url}/user/register")
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-
-    request = Net::HTTP::Post.new(uri)
-    request['Content-Type'] = 'application/json'
-    request['Api-Version'] = API_VERSION
-    request['Authorization'] = "Bearer #{client_token_val}"
-
-    user_data = {
-      user: {
-        loginName: login_name,
-        email: user.email,
-        password: SecureRandom.hex(12)
-      }
-    }
-    request.body = user_data.to_json
-
-    response = http.request(request)
-    
-    if response.code.to_i >= 200 && response.code.to_i < 300
-      # After registration, get the user token
-      generate_access_token(login_name: login_name)
-    else
-      # User might already exist, try to get token anyway
-      generate_access_token(login_name: login_name)
+      Rails.logger.error("Failed to get token for sandbox user: #{e.message}")
+      
+      # If the default test user doesn't work, try numbered test users
+      # Yodlee sandbox often provides users like sbMemusername1, sbMemusername2, etc.
+      (1..5).each do |i|
+        alternative_user = "sbMemusername#{i}"
+        begin
+          Rails.logger.info("Trying alternative sandbox user: #{alternative_user}")
+          user_token = generate_access_token(login_name: alternative_user)
+          Rails.logger.info("Successfully got token for sandbox user: #{alternative_user}")
+          return user_token
+        rescue => attempt_error
+          Rails.logger.warn("Failed to authenticate as #{alternative_user}: #{attempt_error.message}")
+        end
+      end
+      
+      Rails.logger.error("All sandbox user attempts failed")
+      return nil
     end
   end
 
